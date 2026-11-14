@@ -1,0 +1,27 @@
+discord:
+  token_env: DISCORD_TOKEN
+  guild_id: 0                  # 0 = global commands
+  channels:
+    confirmed: 0               # channel ID for verified vulns
+    candidates: 0              # channel ID for unverified hits
+    status: 0                  # channel ID for source health / errors
+
+scraper:
+  interval_minutes: 30         # full cycle cadence
+  verify_concurrency: 32       # parallel verifier workers
+  verify_timeout: 8            # seconds per IP
+  max_candidates_per_cycle: 500
+  require_confirm: true        # never emit to #confirmed without a verifier pass
+
+verifier:
+  firmware_floor_overrides: {} # family -> [major, minor] if you know better than defaults
+  beacon_wait: 4               # seconds to wait for OOB during confirm
+  key_db: "~/.smc36435/keys.db.json"
+
+network:
+  socks_proxy: ""              # optional; "" = direct
+  user_agent: "smc-scraper/1.0"
+
+logging:
+  level: INFO
+  file: "scraper.log"
