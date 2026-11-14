@@ -1,0 +1,98 @@
+sources:
+  # ---- zero-key sources (work on a VPS immediately) ----
+  - name: crt_sh_supermicro
+    auth: none
+    kind: cert_transparency
+    url: "https://crt.sh/?q=%25.supermicro.com&output=json"
+    note: "CT logs for supermicro.com SANs — yields hostnames, then A records"
+
+  - name: crt_sh_ipmi
+    auth: none
+    kind: cert_transparency
+    url: "https://crt.sh/?q=IPMI&output=json"
+    note: "BMC self-signed certs often carry CN=IPMI"
+
+  - name: grep_app_machinekey
+    auth: none
+    kind: code_search
+    url: "https://grep.app/api/search?q=validationKey%20supermicro"
+    note: "leaked web.config fragments"
+
+  - name: github_code_machinekey
+    auth: none
+    kind: code_search
+    url: "https://api.github.com/search/code?q=validationKey+supermicro+in:file"
+    rate_note: "10 req/min unauthenticated; set GITHUB_TOKEN to raise"
+
+  - name: indexof_bmc
+    auth: none
+    kind: open_directory
+    url: "https://www.google.com/search?q=index+of+%22Login.aspx%22+supermicro"
+    note: "open-directory mirrors exposing BMC webroots"
+
+  - name: reverse_dns_ipmi
+    auth: none
+    kind: dns_ptr
+    ptr_pattern: "{ip}.in-addr.arpa"
+    filter_substring: "ipmi"
+    cidrs_source: "cidrs.txt"
+    note: "PTR records containing 'ipmi' across your cidrs.txt"
+
+  - name: pastebin_recent
+    auth: none
+    kind: paste_search
+    url: "https://scrape.pastebin.com/api_scraping.php?limit=250"
+    note: "recent pastes — grep for supermicro/ipmi/bmc + IP"
+
+  - name: openbmc_github_issues
+    auth: none
+    kind: code_search
+    url: "https://api.github.com/search/issues?q=supermicro+bmc+in:title"
+    note: "public bug reports leaking management IPs"
+
+  # ---- free-tier key sources (activate when env var present) ----
+  - name: shodan
+    auth: key
+    key_env: SHODAN_API_KEY
+    kind: shodan
+    query: 'http.title:"Supermicro" http.component:"ASP.NET"'
+    note: "free account = 1 req/sec, limited results"
+
+  - name: censys
+    auth: key
+    key_env: CENSYS_API_ID
+    key_env2: CENSYS_API_SECRET
+    kind: censys
+    query: 'services.http.response.html_title:"Supermicro"'
+
+  - name: fofa
+    auth: key
+    key_env: FOFA_EMAIL
+    key_env2: FOFA_KEY
+    kind: fofa
+    query: 'app="Supermicro-IPMI"'
+
+  - name: zoomeye
+    auth: key
+    key_env: ZOOMEYE_API_KEY
+    kind: zoomeye
+    query: 'app:"Supermicro IPMI"'
+
+  - name: netlas
+    auth: key
+    key_env: NETLAS_API_KEY
+    kind: netlas
+    query: 'http.title:"Supermicro"'
+
+  - name: onyphe
+    auth: key
+    key_env: ONYPHE_API_KEY
+    kind: onyphe
+    query: 'product:"Supermicro IPMI"'
+
+  # ---- add your own ----
+  # - name: my_custom
+  #   auth: none
+  #   kind: http_list
+  #   url: "https://example.com/list.txt"
+  #   parse: "ipv4_lines"
